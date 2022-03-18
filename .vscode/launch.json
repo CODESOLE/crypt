@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug -f LICENSE -m aes128",
+      "program": "${workspaceFolder}/build/crypt",
+      "args": ["-f", "LICENSE", "-m", "aes128"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug -f LICENSE -m aes128 -o LICENSE",
+      "program": "${workspaceFolder}/build/crypt",
+      "args": ["-f", "LICENSE", "-m", "aes128", "-o", "LICENSE"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug -f LICENSE.aes -m aes128",
+      "program": "${workspaceFolder}/build/crypt",
+      "args": ["-f", "LICENSE.aes", "-m", "aes128"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug -f LICENSE.aes -m aes128 -o LICENSE.txt",
+      "program": "${workspaceFolder}/build/crypt",
+      "args": ["-f", "LICENSE.aes", "-m", "aes128", "-o", "LICENSE.txt"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug -f LICENSE -m sha256",
+      "program": "${workspaceFolder}/build/crypt",
+      "args": ["-f", "LICENSE", "-m", "sha256"],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

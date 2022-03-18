@@ -1,0 +1,7 @@
+crypt
+*.txt
+.cache
+compile_commands.json
+*.aes
+*.aes_keys
+build
