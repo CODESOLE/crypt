@@ -6,8 +6,8 @@
     },
     "Command Prompt": {
       "path": [
-        "${env:windir}\\Sysnative\\cmd.exe",
-        "${env:windir}\\System32\\cmd.exe"
+        "${env:windir}/Sysnative/cmd.exe",
+        "${env:windir}/System32/cmd.exe"
       ],
       "args": [],
       "icon": "terminal-cmd"
@@ -16,7 +16,7 @@
       "source": "Git Bash"
     },
     "MSYS2Bash": {
-      "path": "C:\\msys64\\usr\\bin\\bash.exe",
+      "path": "C:/msys64/usr/bin/bash.exe",
       "args": [
         "--login",
         "-i"
