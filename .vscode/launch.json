@@ -2,44 +2,37 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Linux - Debug",
       "type": "lldb",
       "request": "launch",
-      "name": "Debug -f LICENSE -m aes128",
-      "program": "${workspaceFolder}/build/crypt",
-      "args": ["-f", "LICENSE", "-m", "aes128"],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug -f LICENSE -m aes128 -o LICENSE",
-      "program": "${workspaceFolder}/build/crypt",
-      "args": ["-f", "LICENSE", "-m", "aes128", "-o", "LICENSE"],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug -f LICENSE.aes -m aes128",
-      "program": "${workspaceFolder}/build/crypt",
-      "args": ["-f", "LICENSE.aes", "-m", "aes128"],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug -f LICENSE.aes -m aes128 -o LICENSE.txt",
-      "program": "${workspaceFolder}/build/crypt",
-      "args": ["-f", "LICENSE.aes", "-m", "aes128", "-o", "LICENSE.txt"],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug -f LICENSE -m sha256",
       "program": "${workspaceFolder}/build/crypt",
       "args": ["-f", "LICENSE", "-m", "sha256"],
       "cwd": "${workspaceFolder}"
+    },
+    {
+        "name": "Windows - Debug",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}\\build\\crypt.exe",
+        "args": ["-f", "crypt.exe", "-m", "sha256"],
+        "stopAtEntry": false,
+        "cwd": "C:\\msys64\\mingw64\\bin",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "miDebuggerPath": "C:\\msys64\\mingw64\\bin\\gdb.exe",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": true
+            },
+            {
+                "description": "Set Disassembly Flavor to Intel",
+                "text": "-gdb-set disassembly-flavor intel",
+                "ignoreFailures": true
+            }
+        ]
     }
   ]
 }
