@@ -14,7 +14,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}\\build\\crypt.exe",
-        "args": ["-f", "crypt.exe", "-m", "sha256"],
+        "args": ["-f", "LICENSE", "-m", "sha256"],
         "stopAtEntry": false,
         "cwd": "C:\\msys64\\mingw64\\bin",
         "environment": [],
