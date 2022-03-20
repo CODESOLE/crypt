@@ -4,13 +4,15 @@
     {
       "label": "Debug",
       "type": "shell",
-      "command": "${workspaceFolder}/build.sh",
+      "windows": { "command": "$(cygpath -m '${workspaceFolder}')/build.sh" },
+      "linux": { "command": "${workspaceFolder}/build.sh" },
       "group": "build"
     },
     {
       "label": "Release",
       "type": "shell",
-      "command": "${workspaceFolder}/build.sh r",
+      "windows": { "command": "$(cygpath -m '${workspaceFolder}')/build.sh" },
+      "linux": { "command": "${workspaceFolder}/build.sh" },
       "group": "build"
     }
   ]
