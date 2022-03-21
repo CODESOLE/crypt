@@ -4,7 +4,7 @@ if [ -z "${MSYSTEM}" ] && [ "$(uname)" = "Linux" ] && [ -x "$(command -v pacman)
   echo LINUX_PACMAN
   pacman -S --needed --noconfirm base-devel premake ncurses
 elif [ -n "${MSYSTEM}" ] && [ "${MSYSTEM}" = "MSYS" ]; then
-  echo MSYS2_MINGW64
+  echo MSYS2_MSYS
   pacman -S --needed --noconfirm base-devel mingw-w64-x86_64-{toolchain,premake,ncurses}
 elif [ -n "${MSYSTEM}" ] && [ "${MSYSTEM}" != "MSYS" ]; then
   echo "You executed this in MSYS2 ${MSYSTEM} shell which is invalid MSYS2 shell. It should be executed in MSYS2 MSYS shell."
