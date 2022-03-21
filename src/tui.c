@@ -97,7 +97,7 @@ draw_tui(void)
 {
   initscr();
 
-  coloring();
+  moving_and_sleeping();
 
   endwin();
 }
