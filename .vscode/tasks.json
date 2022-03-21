@@ -11,8 +11,8 @@
     {
       "label": "Release",
       "type": "shell",
-      "windows": { "command": "$(cygpath -m '${workspaceFolder}')/build.sh" },
-      "linux": { "command": "${workspaceFolder}/build.sh" },
+      "windows": { "command": "$(cygpath -m '${workspaceFolder}')/build.sh r" },
+      "linux": { "command": "${workspaceFolder}/build.sh r" },
       "group": "build"
     }
   ]
