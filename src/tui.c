@@ -21,83 +21,27 @@
 
 #include "tui.h"
 #include <stdlib.h>
-//--------------------------------------------------------
-// FUNCTION moving_and_sleeping
-//--------------------------------------------------------
-void moving_and_sleeping()
-{
-  int row = 5;
-  int col = 0;
 
-  curs_set(0);
-
-  for (char c = 65; c <= 90; c++) {
-    move(row++, col++);
-    addch(c);
-    refresh();
-    napms(100);
-  }
-
-  row = 5;
-  col = 3;
-
-  for (char c = 97; c <= 122; c++) {
-    mvaddch(row++, col++, c);
-    refresh();
-    napms(100);
-  }
-
-  curs_set(1);
-
-  addch('\n');
-}
-//--------------------------------------------------------
-// FUNCTION printing
-//--------------------------------------------------------
-void printing()
-{
-  addstr("This was printed using addstr\n\n");
-  refresh();
-
-  addstr("The following letter was printed using addch:- ");
-  addch('a');
-  refresh();
-
-  printw("\n\nThese numbers were printed using printw\n%d\n%f\n", 123, 456.789);
-  refresh();
-}
-//--------------------------------------------------------
-// FUNCTION colouring
-//--------------------------------------------------------
-void coloring()
-{
-  if (has_colors()) {
-    if (start_color() == OK) {
-      for (size_t i = 0; i < 255; ++i)
-        for (size_t j = 0; j < 255; ++j)
-          init_pair(i +j, i, j);
-
-      for (size_t i = 0; i < 65535; ++i) {
-        attrset(COLOR_PAIR(i));
-        addch('@');
-        refresh();
-        attroff(COLOR_PAIR(i));
-      }
-    } else {
-      addstr("Cannot start colours\n");
-      refresh();
-    }
-  } else {
-    addstr("Not colour capable\n");
-    refresh();
-  }
-}
 void
 draw_tui(void)
 {
-  initscr();
-
-  moving_and_sleeping();
-
-  endwin();
+  int c = 0, x = 1, y = 1;
+  ru_cls();
+  while ((c = ru_getkey())) {
+    switch (c) {
+    case 'j':
+      y++;
+    break;
+    case 'k':
+      y--;
+    break;
+    case 'h':
+      x--;
+    break;
+    case 'l':
+      x++;
+    break;
+    }
+    ru_locate(x, y);
+  }
 }

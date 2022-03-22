@@ -14,12 +14,7 @@ project "crypt"
   buildoptions { "-pedantic" }
   includedirs { "src", "dep" }
 
-  if os.host() == "windows" then
-    includedirs { "C:/msys64/mingw64/include/ncursesw" }
-  end
-
   files { "src/**.c", "dep/**.c" }
-  links { "ncurses" }
 
   filter "configurations:Debug"
     defines { "DEBUG" }

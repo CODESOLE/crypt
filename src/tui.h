@@ -22,7 +22,7 @@
 #ifndef _TUI_H_
 #define _TUI_H_
 
-#include <ncurses.h>
+#include "rogueutil/rogueutil.h"
 #include <time.h>
 
 void
