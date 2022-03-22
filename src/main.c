@@ -18,33 +18,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
-#include "tinycrypt/sha256.h"
 #include "tinycrypt/aes.h"
+#include "tinycrypt/sha256.h"
+#include "tui.h"
+#include <getopt.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <stdint.h>
 #include <string.h>
-#include <getopt.h>
-#include "tui.h"
+#include <sys/stat.h>
 
-_Bool flag_version = 0, flag_help = 0, flag_file = 0,
-      flag_mode = 0, flag_output = 0, flag_tui = 0;
+_Bool flag_version = 0, flag_help = 0, flag_file = 0, flag_mode = 0,
+      flag_output = 0, flag_tui = 0;
 
 char file[128], out_file[128];
 
-enum crypt_mode {
-  NONE = 0,
-  SHA256,
-  AES128
-};
+enum crypt_mode { NONE = 0, SHA256, AES128 };
 
 static enum crypt_mode mode = NONE;
 
-void
-usage(void)
-{
+void usage(void) {
   puts("Usage: crypt [OPTION...] [FILE...]\n"
        "simple hashing and encrypting/decrypting program.\n"
        "\n"
@@ -52,13 +45,12 @@ usage(void)
        "-t       run in TUI mode\n"
        "-h       print help\n"
        "-m <arg> specify mode which can be either sha256 or aes128\n"
-       "-o <arg> specify out file to write aes encrypted/decrypted file, if not specified, it will print to stdout\n"
+       "-o <arg> specify out file to write aes encrypted/decrypted file, if "
+       "not specified, it will print to stdout\n"
        "-f <arg> specify file to encrypt/decrypt");
 }
 
-void
-handle_parsed_arguments(void)
-{
+void handle_parsed_arguments(void) {
   if (flag_version) {
     printf("VERSION: v%d.%d\n", 0, 1);
     exit(EXIT_SUCCESS);
@@ -82,18 +74,19 @@ handle_parsed_arguments(void)
   }
 }
 
-void
-parse_cmd_arguments(int argc, char **argv, const char *optstring)
-{
-  if (!optstring) return;
+void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
+  if (!optstring)
+    return;
   int option = -1;
 
   while ((option = getopt(argc, argv, optstring)) != -1) {
     switch (option) {
     case 'm':
       flag_mode = 1;
-      if (strncmp(optarg, "sha256", 6) == 0) mode = SHA256;
-      else if (strncmp(optarg, "aes128", 6) == 0) mode = AES128;
+      if (strncmp(optarg, "sha256", 6) == 0)
+        mode = SHA256;
+      else if (strncmp(optarg, "aes128", 6) == 0)
+        mode = AES128;
       else {
         perror("Wrong mode, it can be either sha256 or aes128");
         usage();
@@ -125,7 +118,8 @@ parse_cmd_arguments(int argc, char **argv, const char *optstring)
     case '?':
       printf("Unknown option used: -%c, type -h to get help\n", optopt);
       exit(EXIT_FAILURE);
-    default:  break;
+    default:
+      break;
     }
   }
 
@@ -137,9 +131,7 @@ parse_cmd_arguments(int argc, char **argv, const char *optstring)
   handle_parsed_arguments();
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   if (argc < 2) {
     perror("give a argument type -h to get help");
     exit(EXIT_FAILURE);
@@ -165,32 +157,38 @@ main(int argc, char *argv[])
     uint8_t *file_contents = malloc(sb.st_size);
     fread(file_contents, sb.st_size, 1, in_file);
 
-    if (mode == SHA256) {   /* SHA mode */
-      struct tc_sha256_state *sha256_ctx = malloc(sizeof(struct tc_sha256_state));
-      if (!tc_sha256_init(sha256_ctx)) puts("fail_sha_init");
+    if (mode == SHA256) { /* SHA mode */
+      struct tc_sha256_state *sha256_ctx =
+          malloc(sizeof(struct tc_sha256_state));
+      if (!tc_sha256_init(sha256_ctx))
+        puts("fail_sha_init");
 
-      if (!tc_sha256_update(sha256_ctx, file_contents, sb.st_size)) perror("fail_sha_update");
+      if (!tc_sha256_update(sha256_ctx, file_contents, sb.st_size))
+        perror("fail_sha_update");
 
-      uint8_t digest[32] = { 0 };
-      if (!tc_sha256_final(digest, sha256_ctx)) perror("fail_sha_final");
+      uint8_t digest[32] = {0};
+      if (!tc_sha256_final(digest, sha256_ctx))
+        perror("fail_sha_final");
 
-      for (size_t i = 0; i < 32; i++) printf("%02x", digest[i]);
+      for (size_t i = 0; i < 32; i++)
+        printf("%02x", digest[i]);
       printf("\t%s\n", file);
 
       free(sha256_ctx);
-    } else if (mode == AES128) {    /* AES mode */
+    } else if (mode == AES128) { /* AES mode */
       uint8_t remaining = sb.st_size % 16;
       size_t i = (remaining != 0) ? sb.st_size + (16 - remaining) : sb.st_size;
 
       srand(time(NULL));
-      uint8_t encrypt_key[16] = { 0 };
-      uint8_t decrypt_key[16] = { 0 };
+      uint8_t encrypt_key[16] = {0};
+      uint8_t decrypt_key[16] = {0};
 
       struct stat keys_file;
       if (stat(".aes_keys", &keys_file) == 0) { /* key exist */
         uint8_t remain = 0;
         FILE *keys = fopen(".aes_keys", "rb");
-        if (!keys) puts("opening keys file failed");
+        if (!keys)
+          puts("opening keys file failed");
         fread(encrypt_key, 16, 1, keys);
         fseek(keys, 16, SEEK_SET);
         fread(decrypt_key, 16, 1, keys);
@@ -198,11 +196,14 @@ main(int argc, char *argv[])
         fread(&remain, 1, 1, keys);
         remaining = remain == remaining ? remaining : remain;
         fclose(keys);
-      } else {                                  /* key not exist */
-        for (size_t i = 0; i < 16; ++i) encrypt_key[i] = (uint8_t)rand();
-        for (size_t i = 0; i < 16; ++i) decrypt_key[i] = (uint8_t)rand();
+      } else { /* key not exist */
+        for (size_t i = 0; i < 16; ++i)
+          encrypt_key[i] = (uint8_t)rand();
+        for (size_t i = 0; i < 16; ++i)
+          decrypt_key[i] = (uint8_t)rand();
         FILE *keys = fopen(".aes_keys", "wb");
-        if (!keys) puts("opening keys file failed");
+        if (!keys)
+          puts("opening keys file failed");
         fwrite(encrypt_key, 16, 1, keys);
         fseek(keys, 16, SEEK_SET);
         fwrite(decrypt_key, 16, 1, keys);
@@ -211,15 +212,20 @@ main(int argc, char *argv[])
         fclose(keys);
       }
 
-      struct tc_aes_key_sched *aes_ctx = malloc(sizeof(struct tc_aes_key_sched));
+      struct tc_aes_key_sched *aes_ctx =
+          malloc(sizeof(struct tc_aes_key_sched));
 
-      if (!tc_aes128_set_encrypt_key(aes_ctx, encrypt_key)) puts("fail_aes_key_encrypt");
-      if (!tc_aes128_set_decrypt_key(aes_ctx, decrypt_key)) puts("fail_aes_key_decrypt");
+      if (!tc_aes128_set_encrypt_key(aes_ctx, encrypt_key))
+        puts("fail_aes_key_encrypt");
+      if (!tc_aes128_set_decrypt_key(aes_ctx, decrypt_key))
+        puts("fail_aes_key_decrypt");
 
       if (strncmp(file + strlen(file) - 4, ".aes", 4) == 0) {
         uint8_t *decrypted_file = calloc(1, i);
         for (size_t k = 0; k < (i / 16); ++k)
-          if (!tc_aes_decrypt(decrypted_file + 16 * k, file_contents + 16 * k, aes_ctx)) puts("fail_aes_decrypt");
+          if (!tc_aes_decrypt(decrypted_file + 16 * k, file_contents + 16 * k,
+                              aes_ctx))
+            puts("fail_aes_decrypt");
 
         if (flag_output) {
           FILE *out_decrypted_file = fopen(out_file, "w");
@@ -231,7 +237,9 @@ main(int argc, char *argv[])
       } else {
         uint8_t *encrypted_file = calloc(1, i);
         for (size_t k = 0; k < (i / 16); ++k)
-          if (!tc_aes_encrypt(encrypted_file + 16 * k, file_contents + 16 * k, aes_ctx)) puts("fail_aes_encrypt");
+          if (!tc_aes_encrypt(encrypted_file + 16 * k, file_contents + 16 * k,
+                              aes_ctx))
+            puts("fail_aes_encrypt");
 
         if (flag_output) {
           strncat(out_file, ".aes", 5);

@@ -18,14 +18,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
 #ifndef _TUI_H_
 #define _TUI_H_
 
 #include "rogueutil/rogueutil.h"
 #include <time.h>
 
-void
-draw_tui(void);
+void draw_tui(void);
 
 #endif /* _TUI_H_ */

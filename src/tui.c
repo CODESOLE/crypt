@@ -18,29 +18,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
 #include "tui.h"
 #include <stdlib.h>
 
-void
-draw_tui(void)
-{
+void draw_tui(void) {
   int c = 0, x = 1, y = 1;
   ru_cls();
   while ((c = ru_getkey())) {
     switch (c) {
     case 'j':
       y++;
-    break;
+      break;
     case 'k':
       y--;
-    break;
+      break;
     case 'h':
       x--;
-    break;
+      break;
     case 'l':
       x++;
-    break;
+      break;
     }
     ru_locate(x, y);
   }
