@@ -19,10 +19,16 @@
  */
 
 #include "tui.h"
+#include <dirent.h>
 #include <math.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 static int option_pos = FILE_CHOOSER;
+#define MAX_FILE 8192
+#define MAX_FILE_NAME 8192
+static char files[MAX_FILE][MAX_FILE_NAME];
+static unsigned int file_count;
 
 void print_scr(enum option_stacks os) {
   ru_color_print(
@@ -30,16 +36,23 @@ void print_scr(enum option_stacks os) {
       "╔═ Choose File ══════════════════════════════════════════════╗\n"
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n");
+  ru_locate(40, 1);
+  ru_color_print(os == FILE_CHOOSER ? RU_RED : RU_WHITE, RU_BLACK,
+                 " Number of file: %d ", file_count);
+
+  ru_locate(1, 4);
   ru_color_print(
       os == MODE ? RU_RED : RU_WHITE, RU_BLACK,
       "╔═ Choose Encrypt Mode ══════════════════════════════════════╗\n"
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n");
+
   ru_color_print(
       os == OUTPUT ? RU_RED : RU_WHITE, RU_BLACK,
       "╔═ Choose Output Mode ═══════════════════════════════════════╗\n"
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n");
+
   // if (/* OUTPUT != STDOUT */);
   ru_color_print(
       os == OUTPUT_FILE_NAMER ? RU_RED : RU_WHITE, RU_BLACK,
@@ -49,11 +62,30 @@ void print_scr(enum option_stacks os) {
 }
 
 void draw_tui(void) {
+  DIR *dir = NULL;
+  struct dirent *de = NULL;
+  struct stat path_stat;
+  if ((dir = opendir(".")) == NULL) {
+    perror("error opening directory");
+    exit(EXIT_FAILURE);
+  }
+  while ((de = readdir(dir)) != NULL) {
+    if (de->d_name[0] == '.')
+      continue;
+    stat(de->d_name, &path_stat);
+    if (S_ISREG(path_stat.st_mode)) {
+      strncpy(files[file_count], de->d_name, strlen(de->d_name));
+      files[file_count][strlen(de->d_name) - 1] = '\0';
+      file_count++;
+    }
+  }
+  closedir(dir);
+
   int c = 0;
   ru_hide_cursor();
   ru_cls();
   ru_locate(1, 1);
-  while ((c = ru_getkey()) != RU_KEY_ESCAPE) {
+  do {
     switch (c) {
     case 'k':
       option_pos--;
@@ -70,6 +102,7 @@ void draw_tui(void) {
     ru_cls();
     ru_locate(1, 1);
     print_scr(option_pos);
-  }
+  } while ((c = ru_getkey()) != RU_KEY_ESCAPE);
+  ru_cls();
   ru_show_cursor();
 }
