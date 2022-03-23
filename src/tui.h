@@ -24,6 +24,16 @@
 #include "rogueutil/rogueutil.h"
 #include <time.h>
 
+enum option_stacks {
+  FILE_CHOOSER = 0,
+  MODE,
+  OUTPUT,
+  OUTPUT_FILE_NAMER,
+  MAX_OPTION_STACK
+};
+
+void print_scr(enum option_stacks);
+
 void draw_tui(void);
 
 #endif /* _TUI_H_ */
