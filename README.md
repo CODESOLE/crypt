@@ -1,5 +1,5 @@
 # CRYPT
-Simple hashing & encrypting/decrypting program
+Simple hashing(SHA256) & encrypting/decrypting(AES128) program
 
 # Build on Windows
  - Install [MSYS2](https://msys2.org) (Leave installation directory to `C:\msys64`)
