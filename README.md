@@ -15,6 +15,8 @@ For other linux distributions you can install dependencies according to your pac
  - GNU Make
  - Premake
 
+Then just run `./build.sh` from root directory (No need for `./install_deps_for_windowsmsys2_and_arch_linux.sh` other than arch linux like distributions)
+
 # Usage
 ```
 Usage: crypt [OPTION...] [FILE...]
