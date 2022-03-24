@@ -29,6 +29,7 @@ static int option_pos = FILE_CHOOSER;
 #define MAX_FILE_NAME 8192
 static char files[MAX_FILE][MAX_FILE_NAME];
 static unsigned int file_count;
+static unsigned short file_idx;
 
 void print_scr(enum option_stacks os) {
   ru_color_print(
@@ -37,8 +38,12 @@ void print_scr(enum option_stacks os) {
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n");
   ru_locate(40, 1);
-  ru_color_print(os == FILE_CHOOSER ? RU_RED : RU_WHITE, RU_BLACK,
-                 " Number of file: %d ", file_count);
+  ru_color_print(os == FILE_CHOOSER ? RU_RED : RU_WHITE, RU_BLACK, " %d/%d ",
+                 file_idx, file_count);
+  ru_locate(2, 2);
+  file_idx ? ru_color_print(os == FILE_CHOOSER ? RU_RED : RU_WHITE, RU_BLACK,
+                            " %s ", files[file_idx - 1])
+           : ru_print_xy(2, 2, "<NONE>");
 
   ru_locate(1, 4);
   ru_color_print(
@@ -74,8 +79,8 @@ void draw_tui(void) {
       continue;
     stat(de->d_name, &path_stat);
     if (S_ISREG(path_stat.st_mode)) {
-      strncpy(files[file_count], de->d_name, strlen(de->d_name));
-      files[file_count][strlen(de->d_name) - 1] = '\0';
+      strncpy(files[file_count], de->d_name, strlen(de->d_name) + 1);
+      files[file_count][strlen(de->d_name)] = '\0';
       file_count++;
     }
   }
@@ -85,6 +90,8 @@ void draw_tui(void) {
   ru_hide_cursor();
   ru_cls();
   ru_locate(1, 1);
+  if (file_count)
+    file_idx++;
   do {
     switch (c) {
     case 'k':
@@ -95,6 +102,18 @@ void draw_tui(void) {
     case 'j':
       option_pos++;
       option_pos = option_pos >= MAX_OPTION_STACK ? 0 : option_pos;
+      break;
+    case 'h':
+      if (file_count && option_pos == FILE_CHOOSER) {
+        file_idx--;
+        file_idx = file_idx < 1 ? 1 : file_idx;
+      }
+      break;
+    case 'l':
+      if (file_count && option_pos == FILE_CHOOSER) {
+        file_idx++;
+        file_idx = file_idx > file_count ? file_count : file_idx;
+      }
       break;
     default:
       break;
