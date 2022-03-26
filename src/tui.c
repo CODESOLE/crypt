@@ -19,6 +19,7 @@
  */
 
 #include "tui.h"
+#include "libbsd_string/string.h"
 #include <dirent.h>
 #include <math.h>
 #include <stdlib.h>
@@ -79,8 +80,7 @@ void draw_tui(void) {
       continue;
     stat(de->d_name, &path_stat);
     if (S_ISREG(path_stat.st_mode)) {
-      strncpy(files[file_count], de->d_name, strlen(de->d_name) + 1);
-      files[file_count][strlen(de->d_name)] = '\0';
+      strlcpy(files[file_count], de->d_name, sizeof(files));
       file_count++;
     }
   }

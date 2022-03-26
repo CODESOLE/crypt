@@ -18,6 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include "libbsd_string/string.h"
 #include "tinycrypt/aes.h"
 #include "tinycrypt/sha256.h"
 #include "tui.h"
@@ -106,16 +107,14 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
       break;
     case 'o':
       flag_output = 1;
-      strncpy(out_file, optarg, 128);
-      out_file[127] = '\0';
+      strlcpy(out_file, optarg, sizeof(out_file));
       break;
     case 'h':
       flag_help = 1;
       break;
     case 'f':
       flag_file = 1;
-      strncpy(file, optarg, 128);
-      file[127] = '\0';
+      strlcpy(file, optarg, sizeof(file));
       break;
     case ':':
       printf("Option %c needs a value\n", optopt);
@@ -247,7 +246,7 @@ int main(int argc, char *argv[]) {
             puts("fail_aes_encrypt");
 
         if (flag_output) {
-          strncat(out_file, ".aes", 5);
+          strlcat(out_file, ".aes", sizeof(out_file));
           FILE *out_encrypted_file = fopen(out_file, "wb");
           fwrite(encrypted_file, padding, 1, out_encrypted_file);
           fclose(out_encrypted_file);
