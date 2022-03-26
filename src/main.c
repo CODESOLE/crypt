@@ -61,13 +61,13 @@ void handle_parsed_arguments(void) {
     exit(EXIT_FAILURE);
   }
 
-  if (!flag_file) {
+  if (!flag_file && !flag_tui) {
     perror("Wrong usage specify file to encrypt/decrypt or hash");
     usage();
     exit(EXIT_FAILURE);
   }
 
-  if (!flag_mode) {
+  if (!flag_mode && !flag_tui) {
     perror("Wrong usage specify mode");
     usage();
     exit(EXIT_FAILURE);
@@ -78,6 +78,11 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
   if (!optstring)
     return;
   int option = -1;
+
+  if (argc < 2) {
+    perror("give a argument type -h to get help");
+    exit(EXIT_FAILURE);
+  }
 
   while ((option = getopt(argc, argv, optstring)) != -1) {
     switch (option) {
@@ -102,7 +107,7 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
     case 'o':
       flag_output = 1;
       strncpy(out_file, optarg, 128);
-      out_file[128 - 1] = '\0';
+      out_file[127] = '\0';
       break;
     case 'h':
       flag_help = 1;
@@ -110,7 +115,7 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
     case 'f':
       flag_file = 1;
       strncpy(file, optarg, 128);
-      file[128 - 1] = '\0';
+      file[127] = '\0';
       break;
     case ':':
       printf("Option %c needs a value\n", optopt);
@@ -132,11 +137,6 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    perror("give a argument type -h to get help");
-    exit(EXIT_FAILURE);
-  }
-
   parse_cmd_arguments(argc, argv, ":vthf:m:o:");
 
   if (flag_tui) {
@@ -177,7 +177,8 @@ int main(int argc, char *argv[]) {
       free(sha256_ctx);
     } else if (mode == AES128) { /* AES mode */
       uint8_t remaining = sb.st_size % 16;
-      size_t i = (remaining != 0) ? sb.st_size + (16 - remaining) : sb.st_size;
+      size_t padding =
+          (remaining != 0) ? sb.st_size + (16 - remaining) : sb.st_size;
 
       srand(time(NULL));
       uint8_t encrypt_key[16] = {0};
@@ -187,8 +188,10 @@ int main(int argc, char *argv[]) {
       if (stat(".aes_keys", &keys_file) == 0) { /* key exist */
         uint8_t remain = 0;
         FILE *keys = fopen(".aes_keys", "rb");
-        if (!keys)
+        if (!keys) {
           puts("opening keys file failed");
+          exit(EXIT_FAILURE);
+        }
         fread(encrypt_key, 16, 1, keys);
         fseek(keys, 16, SEEK_SET);
         fread(decrypt_key, 16, 1, keys);
@@ -202,8 +205,10 @@ int main(int argc, char *argv[]) {
         for (size_t i = 0; i < 16; ++i)
           decrypt_key[i] = (uint8_t)rand();
         FILE *keys = fopen(".aes_keys", "wb");
-        if (!keys)
+        if (!keys) {
           puts("opening keys file failed");
+          exit(EXIT_FAILURE);
+        }
         fwrite(encrypt_key, 16, 1, keys);
         fseek(keys, 16, SEEK_SET);
         fwrite(decrypt_key, 16, 1, keys);
@@ -221,22 +226,22 @@ int main(int argc, char *argv[]) {
         puts("fail_aes_key_decrypt");
 
       if (strncmp(file + strlen(file) - 4, ".aes", 4) == 0) {
-        uint8_t *decrypted_file = calloc(1, i);
-        for (size_t k = 0; k < (i / 16); ++k)
+        uint8_t *decrypted_file = calloc(1, padding);
+        for (size_t k = 0; k < (padding / 16); ++k)
           if (!tc_aes_decrypt(decrypted_file + 16 * k, file_contents + 16 * k,
                               aes_ctx))
             puts("fail_aes_decrypt");
 
         if (flag_output) {
           FILE *out_decrypted_file = fopen(out_file, "w");
-          fwrite(decrypted_file, i - remaining, 1, out_decrypted_file);
+          fwrite(decrypted_file, padding - remaining, 1, out_decrypted_file);
           fclose(out_decrypted_file);
         } else {
           printf("decrypted:\n%s\n", (char *)decrypted_file);
         }
       } else {
-        uint8_t *encrypted_file = calloc(1, i);
-        for (size_t k = 0; k < (i / 16); ++k)
+        uint8_t *encrypted_file = calloc(1, padding);
+        for (size_t k = 0; k < (padding / 16); ++k)
           if (!tc_aes_encrypt(encrypted_file + 16 * k, file_contents + 16 * k,
                               aes_ctx))
             puts("fail_aes_encrypt");
@@ -244,7 +249,7 @@ int main(int argc, char *argv[]) {
         if (flag_output) {
           strncat(out_file, ".aes", 5);
           FILE *out_encrypted_file = fopen(out_file, "wb");
-          fwrite(encrypted_file, i, 1, out_encrypted_file);
+          fwrite(encrypted_file, padding, 1, out_encrypted_file);
           fclose(out_encrypted_file);
         } else {
           printf("encrypted:\n%s\n", (char *)encrypted_file);
