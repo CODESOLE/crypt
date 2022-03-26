@@ -137,14 +137,16 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
 
 int main(int argc, char *argv[]) {
   parse_cmd_arguments(argc, argv, ":vthf:m:o:");
-  struct tui_options to = {0};
 
-  if (flag_tui)
+  if (flag_tui) {
+    struct tui_options to = {0};
     to = draw_tui();
 
-  strlcpy(file, to.filename, sizeof(file));
-  mode = to.mode + 1;
-  flag_output = to.output_type;
+    strlcpy(file, to.filename, sizeof(file));
+    mode = to.mode + 1;
+    flag_output = !to.output_type;
+    strlcpy(out_file, to.filename, sizeof(out_file));
+  }
 
   FILE *in_file = fopen(file, "rb");
   if (!in_file) {
