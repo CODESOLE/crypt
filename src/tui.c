@@ -27,10 +27,17 @@
 
 static int option_pos = FILE_CHOOSER;
 #define MAX_FILE 8192
-#define MAX_FILE_NAME 8192
+#define MAX_FILE_NAME 59
 static char files[MAX_FILE][MAX_FILE_NAME];
 static unsigned int file_count;
 static unsigned short file_idx;
+
+#define AES 1
+#define SHA 0
+static _Bool aes_or_sha;
+#define FILE 0
+#define STDOUT 1
+static _Bool stdout_or_file;
 
 void print_scr(enum option_stacks os) {
   ru_color_print(
@@ -52,22 +59,29 @@ void print_scr(enum option_stacks os) {
       "╔═ Choose Encrypt Mode ══════════════════════════════════════╗\n"
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n");
+  ru_locate(10, 5);
+  ru_color_print(aes_or_sha == AES ? RU_RED : RU_WHITE, RU_BLACK, "<AES>");
+  ru_locate(48, 5);
+  ru_color_print(aes_or_sha == SHA ? RU_RED : RU_WHITE, RU_BLACK, "<SHA>");
 
-  ru_color_print(
-      os == OUTPUT ? RU_RED : RU_WHITE, RU_BLACK,
-      "╔═ Choose Output Mode ═══════════════════════════════════════╗\n"
-      "‖                                                            ‖\n"
-      "╚════════════════════════════════════════════════════════════╝\n");
-
-  // if (/* OUTPUT != STDOUT */);
-  ru_color_print(
-      os == OUTPUT_FILE_NAMER ? RU_RED : RU_WHITE, RU_BLACK,
-      "╔═ Choose Output File Name ══════════════════════════════════╗\n"
-      "‖                                                            ‖\n"
-      "╚════════════════════════════════════════════════════════════╝\n");
+  if (aes_or_sha == AES) {
+    ru_locate(1, 7);
+    ru_color_print(
+        os == OUTPUT ? RU_RED : RU_WHITE, RU_BLACK,
+        "╔═ Choose Output Mode ═══════════════════════════════════════╗\n"
+        "‖                                                            ‖\n"
+        "╚════════════════════════════════════════════════════════════╝\n");
+    ru_locate(10, 8);
+    ru_color_print(stdout_or_file == STDOUT ? RU_RED : RU_WHITE, RU_BLACK,
+                   "<STDOUT>");
+    ru_locate(48, 8);
+    ru_color_print(stdout_or_file == FILE ? RU_RED : RU_WHITE, RU_BLACK,
+                   "<FILE>");
+  }
 }
 
-void draw_tui(void) {
+struct tui_options draw_tui(void) {
+  struct tui_options tui_opt = {0};
   DIR *dir = NULL;
   struct dirent *de = NULL;
   struct stat path_stat;
@@ -80,7 +94,7 @@ void draw_tui(void) {
       continue;
     stat(de->d_name, &path_stat);
     if (S_ISREG(path_stat.st_mode)) {
-      strlcpy(files[file_count], de->d_name, sizeof(files));
+      strlcpy(files[file_count], de->d_name, MAX_FILE_NAME);
       file_count++;
     }
   }
@@ -108,12 +122,20 @@ void draw_tui(void) {
         file_idx--;
         file_idx = file_idx < 1 ? 1 : file_idx;
       }
+      if (option_pos == MODE)
+        aes_or_sha = !aes_or_sha;
+      if (option_pos == OUTPUT)
+        stdout_or_file = !stdout_or_file;
       break;
     case 'l':
       if (file_count && option_pos == FILE_CHOOSER) {
         file_idx++;
         file_idx = file_idx > file_count ? file_count : file_idx;
       }
+      if (option_pos == MODE)
+        aes_or_sha = !aes_or_sha;
+      if (option_pos == OUTPUT)
+        stdout_or_file = !stdout_or_file;
       break;
     default:
       break;
@@ -124,4 +146,9 @@ void draw_tui(void) {
   } while ((c = ru_getkey()) != RU_KEY_ESCAPE);
   ru_cls();
   ru_show_cursor();
+  strlcpy(tui_opt.filename, files[file_idx - 1], sizeof(tui_opt.filename));
+  tui_opt.mode = aes_or_sha;
+  tui_opt.output_type = stdout_or_file;
+
+  return tui_opt;
 }

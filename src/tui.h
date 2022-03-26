@@ -24,16 +24,16 @@
 #include "rogueutil/rogueutil.h"
 #include <time.h>
 
-enum option_stacks {
-  FILE_CHOOSER = 0,
-  MODE,
-  OUTPUT,
-  OUTPUT_FILE_NAMER,
-  MAX_OPTION_STACK
+enum option_stacks { FILE_CHOOSER = 0, MODE, OUTPUT, MAX_OPTION_STACK };
+
+struct tui_options {
+  char filename[128];
+  _Bool mode;
+  _Bool output_type;
 };
 
 void print_scr(enum option_stacks);
 
-void draw_tui(void);
+struct tui_options draw_tui(void);
 
 #endif /* _TUI_H_ */

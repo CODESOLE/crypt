@@ -137,130 +137,132 @@ void parse_cmd_arguments(int argc, char **argv, const char *optstring) {
 
 int main(int argc, char *argv[]) {
   parse_cmd_arguments(argc, argv, ":vthf:m:o:");
+  struct tui_options to = {0};
 
-  if (flag_tui) {
-    draw_tui();
-  } else {
-    FILE *in_file = fopen(file, "rb");
-    if (!in_file) {
-      perror("fopen failed");
-      exit(EXIT_FAILURE);
-    }
+  if (flag_tui)
+    to = draw_tui();
 
-    struct stat sb;
-    if (stat(file, &sb) == -1) {
-      perror("stat failed");
-      exit(EXIT_FAILURE);
-    }
+  strlcpy(file, to.filename, sizeof(file));
+  mode = to.mode + 1;
+  flag_output = to.output_type;
 
-    uint8_t *file_contents = malloc(sb.st_size);
-    fread(file_contents, sb.st_size, 1, in_file);
-
-    if (mode == SHA256) { /* SHA mode */
-      struct tc_sha256_state *sha256_ctx =
-          malloc(sizeof(struct tc_sha256_state));
-      if (!tc_sha256_init(sha256_ctx))
-        puts("fail_sha_init");
-
-      if (!tc_sha256_update(sha256_ctx, file_contents, sb.st_size))
-        perror("fail_sha_update");
-
-      uint8_t digest[32] = {0};
-      if (!tc_sha256_final(digest, sha256_ctx))
-        perror("fail_sha_final");
-
-      for (size_t i = 0; i < 32; i++)
-        printf("%02x", digest[i]);
-      printf("\t%s\n", file);
-
-      free(sha256_ctx);
-    } else if (mode == AES128) { /* AES mode */
-      uint8_t remaining = sb.st_size % 16;
-      size_t padding =
-          (remaining != 0) ? sb.st_size + (16 - remaining) : sb.st_size;
-
-      srand(time(NULL));
-      uint8_t encrypt_key[16] = {0};
-      uint8_t decrypt_key[16] = {0};
-
-      struct stat keys_file;
-      if (stat(".aes_keys", &keys_file) == 0) { /* key exist */
-        uint8_t remain = 0;
-        FILE *keys = fopen(".aes_keys", "rb");
-        if (!keys) {
-          puts("opening keys file failed");
-          exit(EXIT_FAILURE);
-        }
-        fread(encrypt_key, 16, 1, keys);
-        fseek(keys, 16, SEEK_SET);
-        fread(decrypt_key, 16, 1, keys);
-        fseek(keys, 32, SEEK_SET);
-        fread(&remain, 1, 1, keys);
-        remaining = remain == remaining ? remaining : remain;
-        fclose(keys);
-      } else { /* key not exist */
-        for (size_t i = 0; i < 16; ++i)
-          encrypt_key[i] = (uint8_t)rand();
-        for (size_t i = 0; i < 16; ++i)
-          decrypt_key[i] = (uint8_t)rand();
-        FILE *keys = fopen(".aes_keys", "wb");
-        if (!keys) {
-          puts("opening keys file failed");
-          exit(EXIT_FAILURE);
-        }
-        fwrite(encrypt_key, 16, 1, keys);
-        fseek(keys, 16, SEEK_SET);
-        fwrite(decrypt_key, 16, 1, keys);
-        fseek(keys, 32, SEEK_SET);
-        fwrite(&remaining, 1, 1, keys);
-        fclose(keys);
-      }
-
-      struct tc_aes_key_sched *aes_ctx =
-          malloc(sizeof(struct tc_aes_key_sched));
-
-      if (!tc_aes128_set_encrypt_key(aes_ctx, encrypt_key))
-        puts("fail_aes_key_encrypt");
-      if (!tc_aes128_set_decrypt_key(aes_ctx, decrypt_key))
-        puts("fail_aes_key_decrypt");
-
-      if (strncmp(file + strlen(file) - 4, ".aes", 4) == 0) {
-        uint8_t *decrypted_file = calloc(1, padding);
-        for (size_t k = 0; k < (padding / 16); ++k)
-          if (!tc_aes_decrypt(decrypted_file + 16 * k, file_contents + 16 * k,
-                              aes_ctx))
-            puts("fail_aes_decrypt");
-
-        if (flag_output) {
-          FILE *out_decrypted_file = fopen(out_file, "w");
-          fwrite(decrypted_file, padding - remaining, 1, out_decrypted_file);
-          fclose(out_decrypted_file);
-        } else {
-          printf("decrypted:\n%s\n", (char *)decrypted_file);
-        }
-      } else {
-        uint8_t *encrypted_file = calloc(1, padding);
-        for (size_t k = 0; k < (padding / 16); ++k)
-          if (!tc_aes_encrypt(encrypted_file + 16 * k, file_contents + 16 * k,
-                              aes_ctx))
-            puts("fail_aes_encrypt");
-
-        if (flag_output) {
-          strlcat(out_file, ".aes", sizeof(out_file));
-          FILE *out_encrypted_file = fopen(out_file, "wb");
-          fwrite(encrypted_file, padding, 1, out_encrypted_file);
-          fclose(out_encrypted_file);
-        } else {
-          printf("encrypted:\n%s\n", (char *)encrypted_file);
-        }
-      }
-
-      free(aes_ctx);
-    }
-
-    fclose(in_file);
-    free(file_contents);
+  FILE *in_file = fopen(file, "rb");
+  if (!in_file) {
+    perror("fopen failed");
+    exit(EXIT_FAILURE);
   }
+
+  struct stat sb;
+  if (stat(file, &sb) == -1) {
+    perror("stat failed");
+    exit(EXIT_FAILURE);
+  }
+
+  uint8_t *file_contents = malloc(sb.st_size);
+  fread(file_contents, sb.st_size, 1, in_file);
+
+  if (mode == SHA256) { /* SHA mode */
+    struct tc_sha256_state *sha256_ctx = malloc(sizeof(struct tc_sha256_state));
+    if (!tc_sha256_init(sha256_ctx))
+      puts("fail_sha_init");
+
+    if (!tc_sha256_update(sha256_ctx, file_contents, sb.st_size))
+      perror("fail_sha_update");
+
+    uint8_t digest[32] = {0};
+    if (!tc_sha256_final(digest, sha256_ctx))
+      perror("fail_sha_final");
+
+    for (size_t i = 0; i < 32; i++)
+      printf("%02x", digest[i]);
+    printf("\t%s\n", file);
+
+    free(sha256_ctx);
+  } else if (mode == AES128) { /* AES mode */
+    uint8_t remaining = sb.st_size % 16;
+    size_t padding =
+        (remaining != 0) ? sb.st_size + (16 - remaining) : sb.st_size;
+
+    srand(time(NULL));
+    uint8_t encrypt_key[16] = {0};
+    uint8_t decrypt_key[16] = {0};
+
+    struct stat keys_file;
+    if (stat(".aes_keys", &keys_file) == 0) { /* key exist */
+      uint8_t remain = 0;
+      FILE *keys = fopen(".aes_keys", "rb");
+      if (!keys) {
+        puts("opening keys file failed");
+        exit(EXIT_FAILURE);
+      }
+      fread(encrypt_key, 16, 1, keys);
+      fseek(keys, 16, SEEK_SET);
+      fread(decrypt_key, 16, 1, keys);
+      fseek(keys, 32, SEEK_SET);
+      fread(&remain, 1, 1, keys);
+      remaining = remain == remaining ? remaining : remain;
+      fclose(keys);
+    } else { /* key not exist */
+      for (size_t i = 0; i < 16; ++i)
+        encrypt_key[i] = (uint8_t)rand();
+      for (size_t i = 0; i < 16; ++i)
+        decrypt_key[i] = (uint8_t)rand();
+      FILE *keys = fopen(".aes_keys", "wb");
+      if (!keys) {
+        puts("opening keys file failed");
+        exit(EXIT_FAILURE);
+      }
+      fwrite(encrypt_key, 16, 1, keys);
+      fseek(keys, 16, SEEK_SET);
+      fwrite(decrypt_key, 16, 1, keys);
+      fseek(keys, 32, SEEK_SET);
+      fwrite(&remaining, 1, 1, keys);
+      fclose(keys);
+    }
+
+    struct tc_aes_key_sched *aes_ctx = malloc(sizeof(struct tc_aes_key_sched));
+
+    if (!tc_aes128_set_encrypt_key(aes_ctx, encrypt_key))
+      puts("fail_aes_key_encrypt");
+    if (!tc_aes128_set_decrypt_key(aes_ctx, decrypt_key))
+      puts("fail_aes_key_decrypt");
+
+    if (strncmp(file + strlen(file) - 4, ".aes", 4) == 0) {
+      uint8_t *decrypted_file = calloc(1, padding);
+      for (size_t k = 0; k < (padding / 16); ++k)
+        if (!tc_aes_decrypt(decrypted_file + 16 * k, file_contents + 16 * k,
+                            aes_ctx))
+          puts("fail_aes_decrypt");
+
+      if (flag_output) {
+        FILE *out_decrypted_file = fopen(out_file, "w");
+        fwrite(decrypted_file, padding - remaining, 1, out_decrypted_file);
+        fclose(out_decrypted_file);
+      } else {
+        printf("decrypted:\n%s\n", (char *)decrypted_file);
+      }
+    } else {
+      uint8_t *encrypted_file = calloc(1, padding);
+      for (size_t k = 0; k < (padding / 16); ++k)
+        if (!tc_aes_encrypt(encrypted_file + 16 * k, file_contents + 16 * k,
+                            aes_ctx))
+          puts("fail_aes_encrypt");
+
+      if (flag_output) {
+        strlcat(out_file, ".aes", sizeof(out_file));
+        FILE *out_encrypted_file = fopen(out_file, "wb");
+        fwrite(encrypted_file, padding, 1, out_encrypted_file);
+        fclose(out_encrypted_file);
+      } else {
+        printf("encrypted:\n%s\n", (char *)encrypted_file);
+      }
+    }
+
+    free(aes_ctx);
+  }
+
+  fclose(in_file);
+  free(file_contents);
 
   return 0;
 }
