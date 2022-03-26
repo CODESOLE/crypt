@@ -1,6 +1,8 @@
 # CRYPT
 Simple hashing(SHA256) & encrypting/decrypting(AES128) commandline program
 
+[![asciicast](https://asciinema.org/a/Z1Luz6Gsfgybpb0j7xTGpFM5F.svg)](https://asciinema.org/a/Z1Luz6Gsfgybpb0j7xTGpFM5F)
+
 # Build on Windows
  - Install [MSYS2](https://msys2.org) (Leave installation directory to `C:\msys64`)
  - Open `MSYS2 MSYS` shell from start menu (**NOT `MSYS2 MINGW or others`**)
@@ -27,5 +29,5 @@ simple hashing and encrypting/decrypting program.
 -h       print help
 -m <arg> specify mode which can be either sha256 or aes128
 -o <arg> specify out file to write aes encrypted/decrypted file, if not specified, it will print to stdout
--f <arg> specify file to encrypt/decrypt
+-f <arg> specify file to encrypt/decrypt or to hash
 ```
