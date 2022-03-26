@@ -32,7 +32,7 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 size_t strlcat(char *dst, const char *src, size_t siz);
 
 #if !defined(__GLIBC__) ||                                                     \
-    (defined(__GLIBC__) && (!__GLIBC_PREREQ(2, 25) || !defined(_GNU_SOURCE)))
+    (defined(__GLIBC__) && !defined(_GNU_SOURCE))
 void explicit_bzero(void *buf, size_t len);
 #endif
 __END_DECLS
