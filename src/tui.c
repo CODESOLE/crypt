@@ -42,16 +42,16 @@ static _Bool stdout_or_file;
 void print_scr(enum option_stacks os) {
   ru_color_print(
       os == FILE_CHOOSER ? RU_RED : RU_WHITE, RU_BLACK,
-      #ifdef _WIN32
+#ifdef _WIN32
       "+- Choose File ----------------------------------------------+\n"
       "|                                                            |\n"
       "+------------------------------------------------------------+\n"
-      #else
+#else
       "╔═ Choose File ══════════════════════════════════════════════╗\n"
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n"
-      #endif
-      );
+#endif
+  );
   ru_locate(40, 1);
   ru_color_print(os == FILE_CHOOSER ? RU_RED : RU_WHITE, RU_BLACK, " %d/%d ",
                  file_idx, file_count);
@@ -63,16 +63,16 @@ void print_scr(enum option_stacks os) {
   ru_locate(1, 4);
   ru_color_print(
       os == MODE ? RU_RED : RU_WHITE, RU_BLACK,
-      #ifdef _WIN32
+#ifdef _WIN32
       "+- Choose Encrypt Mode --------------------------------------+\n"
       "|                                                            |\n"
       "+------------------------------------------------------------+\n"
-      #else
+#else
       "╔═ Choose Encrypt Mode ══════════════════════════════════════╗\n"
       "‖                                                            ‖\n"
       "╚════════════════════════════════════════════════════════════╝\n"
-      #endif
-      );
+#endif
+  );
   ru_locate(10, 5);
   ru_color_print(aes_or_sha == AES ? RU_RED : RU_WHITE, RU_BLACK, "<AES>");
   ru_locate(48, 5);
@@ -82,16 +82,16 @@ void print_scr(enum option_stacks os) {
     ru_locate(1, 7);
     ru_color_print(
         os == OUTPUT ? RU_RED : RU_WHITE, RU_BLACK,
-      #ifdef _WIN32
+#ifdef _WIN32
         "+- Choose Output Mode ---------------------------------------+\n"
         "|                                                            |\n"
         "+------------------------------------------------------------+\n"
-      #else
+#else
         "╔═ Choose Output Mode ═══════════════════════════════════════╗\n"
         "‖                                                            ‖\n"
         "╚════════════════════════════════════════════════════════════╝\n"
-      #endif
-        );
+#endif
+    );
     ru_locate(10, 8);
     ru_color_print(stdout_or_file == STDOUT ? RU_RED : RU_WHITE, RU_BLACK,
                    "<STDOUT>");
