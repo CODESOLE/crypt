@@ -1,6 +1,7 @@
 crypt
 *.txt
 .cache
+.clangd
 compile_commands.json
 *.aes
 *.aes_keys
