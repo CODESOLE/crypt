@@ -1,7 +1,7 @@
 # CRYPT
 Simple hashing(SHA256) & encrypting/decrypting(AES128) commandline program
 
-[![asciicast](https://asciinema.org/a/480861.svg)](https://asciinema.org/a/480861)
+![](https://github.com/CODESOLE/crypt/blob/main/demo.gif)
 
 # Build on Windows
  - Install [MSYS2](https://msys2.org) (Leave installation directory to `C:\msys64`)
