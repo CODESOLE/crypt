@@ -14,17 +14,17 @@ CFLAGS := -MMD -MP -Wall -Wextra -Werror -Wpedantic -pedantic -pedantic-errors -
 LDFLAGS := -lpthread
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-    $(CC) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.c.o: %.c
-    mkdir -p $(dir $@)
-    $(CC) $(INC_FLAGS) $(CFLAGS) -c $< -o $@
+	mkdir -p $(dir $@)
+	$(CC) $(INC_FLAGS) $(CFLAGS) -c $< -o $@
 
 run: $(BUILD_DIR)/$(TARGET_EXEC)
-    @$(BUILD_DIR)/$(TARGET_EXEC)
+	@$(BUILD_DIR)/$(TARGET_EXEC)
 
 .PHONY: clean
 clean:
-    rm -r $(BUILD_DIR)
+	rm -r $(BUILD_DIR)
 
 -include $(DEPS)
