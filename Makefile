@@ -1,12 +1,11 @@
 TARGET_EXEC := crypt
 
-CC := clang
+CC := gcc
 BUILD_DIR := build
 SRC_DIRS := src dep
 INC_DIRS := src dep
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-rwildcard = $(foreach d,$(wildcard $(1)/*),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
-SRCS := $(call rwildcard,$(SRC_DIRS),*.c)
+SRCS := $(shell find $(SRC_DIRS) -name '*.c')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
