@@ -10,9 +10,8 @@ Simple hashing(SHA256) & encrypting/decrypting(AES128) commandline program
  - Run make: `make`
 
 # Build on Linux
-For Archlinux and its derivatives (which uses pacman package manager) you can run `./install_deps_for_windowsmsys2_and_arch_linux.sh` (if needed run with sudo), then run `./build.sh` (You can run `./build.sh r` to compile with release mode otherwise it will compile default to debug mode)
 
-For other linux distributions you can install dependencies according to your package manager:
+You can install dependencies according to your package manager:
  - GCC
  - GNU Make
 
