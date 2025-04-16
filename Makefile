@@ -20,7 +20,7 @@ $(BUILD_DIR)/%.c.o: %.c
 	$(CC) $(INC_FLAGS) $(CFLAGS) -c $< -o $@
 
 run: $(BUILD_DIR)/$(TARGET_EXEC)
-	@$(BUILD_DIR)/$(TARGET_EXEC)
+	@$(BUILD_DIR)/$(TARGET_EXEC) -t
 
 .PHONY: clean
 clean:
